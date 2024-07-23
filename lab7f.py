@@ -3,8 +3,8 @@
 
 class Time:
     """Simple object type for time of the day.
-        data attributes: hour, minute, second
-        function attributes: __init__, __str__, __repr__
+       data attributes: hour, minute, second
+       function attributes: __init__, __str__, __repr__,
                             time_to_sec, format_time,
                             change_time, sum_time
     """
@@ -17,6 +17,14 @@ class Time:
     def format_time(self):
         """Return time object (t) as a formatted string"""
         return f'{self.hour:02d}:{self.minute:02d}:{self.second:02d}'
+
+    def __str__(self):
+        """Return string representation for print()"""
+        return self.format_time()
+
+    def __repr__(self):
+        """Return string representation for eval()"""
+        return f"{self.hour:02d}.{self.minute:02d}.{self.second:02d}"
 
     def sum_times(self, t2):
         """Add two time objects and return the sum."""
@@ -44,6 +52,13 @@ class Time:
         if self.minute >= 60 or self.second >= 60 or self.hour >= 24:
            return False
         return True
+    
+    def __add__(self, other):
+        """Overload the + operator to add two Time objects."""
+        if not isinstance(other, Time):
+            return NotImplemented
+        total_seconds = self.time_to_sec() + other.time_to_sec()
+        return sec_to_time(total_seconds)
 
 def sec_to_time(seconds):
     '''convert a given number of seconds to a time object in hour, minute, second format'''
@@ -51,3 +66,28 @@ def sec_to_time(seconds):
     minutes, time.second = divmod(seconds, 60)
     time.hour, time.minute = divmod(minutes, 60)
     return time
+
+class Clock(Time):
+    """Clock class inheriting from Time class, with additional methods."""
+    
+    def __init__(self, hour=12, minute=0, second=0, clock_type=24):
+        super().__init__(hour, minute, second)
+        self.clock_type = clock_type
+
+    def format_time(self):
+        """Return time object as a formatted string with clock type consideration."""
+        if self.clock_type == 24:
+            return f'{self.hour:02d}:{self.minute:02d}:{self.second:02d}'
+        else:
+            period = "AM" if self.hour < 12 else "PM"
+            hour = self.hour % 12
+            hour = 12 if hour == 0 else hour
+            return f'{hour:02d}:{self.minute:02d}:{self.second:02d} {period}'
+
+    def __str__(self):
+        """Return string representation for print()"""
+        return self.format_time()
+
+    def __repr__(self):
+        """Return string representation for eval()"""
+        return f"{self.hour:02d}.{self.minute:02d}.{self.second:02d}"
